@@ -161,7 +161,7 @@ after_bundle do
   run "bundle exec figaro install"
   generate('simple_form:install', '--bootstrap')
   generate('devise:install')
-  generate ('devise', 'User')
+  generate ('devise User')
   generate ('devise:views')
   git :init
   git add: "."
