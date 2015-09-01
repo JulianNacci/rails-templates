@@ -11,10 +11,28 @@ gem 'jbuilder', '~> 2.0'
 gem 'sass-rails', '~> 5.0'
 gem 'jquery-rails'
 gem 'uglifier'
+
+# Scrapping gem
+gem 'nokogiri'
+
+# Front end gems
 gem 'bootstrap-sass'
 gem 'font-awesome-sass'
 gem 'simple_form'
-gem 'devise'
+gem 'autoprefixer-rails'
+
+# Geoloc gems
+gem 'geocoder'
+gem 'coffee-rails'
+gem 'gmaps4rails'
+
+# Users
+gem 'devise' # Create user model, users controllers and views
+gem 'pundit' # Handle rights
+
+# Internationalization
+gem 'rails-i18n'
+gem 'devise-i18n-views'
 
 group :development, :test do
   gem 'binding_of_caller'
@@ -23,12 +41,19 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'spring'
+  gem 'letter_opener'
+  gem 'i18n-tasks' # Allow to inspect i18n
 end
 
 group :production do
   gem 'rails_12factor'
   gem 'puma'
 end
+
+source 'https://rails-assets.org' do
+  gem 'rails-assets-underscore'
+end
+
 RUBY
 
 file 'Procfile', <<-YAML
@@ -65,6 +90,8 @@ file 'app/assets/javascripts/application.js', <<-JS
 //= require jquery
 //= require jquery_ujs
 //= require bootstrap-sprockets
+//= require underscore
+//= require gmaps/google
 //= require_tree .
 JS
 
@@ -84,11 +111,12 @@ file 'app/views/layouts/application.html.erb', <<-HTML
     <%= render 'shared/flashes' %>
     <%= yield %>
     <%= javascript_include_tag 'application' %>
+    <%= yield(:after_js) %>
   </body>
 </html>
 HTML
 
-file 'app/views/shared/navbar.html.erb', <<-HTML
+file 'app/views/shared/_navbar.html.erb', <<-HTML
 <nav class="navbar-wagon">
   <div class="container navbar-wagon-container">
 
@@ -142,7 +170,7 @@ file 'app/views/shared/navbar.html.erb', <<-HTML
 </nav>
 HTML
 
-file 'app/views/shared/flashes.html.erb', <<-HTML
+file 'app/views/shared/_flashes.html.erb', <<-HTML
 <% if notice %>
   <div class="alert alert-info alert-dismissible" role="alert">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -157,12 +185,44 @@ file 'app/views/shared/flashes.html.erb', <<-HTML
 <% end %>
 HTML
 
+file 'app/controllers/application_controller.rb', <<-RUBY
+class ApplicationController < ActionController::Base
+
+  before_action :authenticate_user!
+  include Pundit
+
+  after_action :verify_authorized, except: :index, unless: :devise_controller?
+  after_action :verify_policy_scoped, only: :index, unless: :devise_controller?
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  def user_not_authorized
+    flash[:alert] = "You are not authorized to perform this action."
+    redirect_to(root_path)
+  end
+end
+RUBY
+
+file 'config/initializers/geocoder.rb', <<-RUBY
+Geocoder.configure(
+  lookup:    :google,
+  api_key:   ENV['GOOGLE_API_KEY'],
+  use_https: true,
+  units:     :km       # :km for kilometers or :mi for mile
+)
+RUBY
+
+
 after_bundle do
   run "bundle exec figaro install"
   generate('simple_form:install', '--bootstrap')
   generate('devise:install')
   generate ('devise User')
-  generate ('devise:views')
+  generate ('devise:views:i18n_templates')
+  generate ('pundit:install')
+  environment 'config.action_mailer.default_url_options = { host: "http://localhost:3000" }', env: 'development'
+  environment 'config.action_mailer.default_url_options = { host: "http://TODO_PUT_YOUR_DOMAIN_HERE" }', env: 'production'
+  rake 'db:drop db:create db:migrate'
   git :init
   git add: "."
   git commit: %Q{ -m 'Initial commit with minimal template from https://github.com/JulianNacci/rails-templates' }

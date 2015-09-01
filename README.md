@@ -11,6 +11,6 @@ debugging gems.
 ```bash
 rails new \
   -T --database postgresql \
-  -m https://raw.githubusercontent.com/lewagon/rails-templates/master/minimal.rb \
+  -m https://raw.githubusercontent.com/JulianNacci/rails-templates/master/minimal.rb \
   CHANGE_THIS_TO_YOUR_RAILS_APP_NAME
 ```
