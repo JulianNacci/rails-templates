@@ -122,7 +122,7 @@ file 'app/views/layouts/application.html.erb', <<-HTML
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   </head>
   <body>
-    <%= render 'shared/navbar' %>
+    <%= render 'shared/navbar_bootstrap' %>
     <%= render 'shared/flashes' %>
     <%= yield %>
     <%= javascript_include_tag 'application' %>
@@ -131,7 +131,7 @@ file 'app/views/layouts/application.html.erb', <<-HTML
 </html>
 HTML
 
-file 'app/views/shared/_navbar_boostrap.html.erb', <<-HTML
+file 'app/views/shared/_navbar_bootstrap.html.erb', <<-HTML
 <nav class="navbar navbar-default navbar-bootstrap-wagon" role="navigation">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
@@ -196,7 +196,7 @@ file 'app/views/shared/_navbar_boostrap.html.erb', <<-HTML
 </nav>
 HTML
 
-file 'app/assets/stylesheets/layout/_navbar.css.scss', <<-CSS
+file 'app/assets/stylesheets/layout/_navbar.scss', <<-CSS
   /* -------------------------------------
    * Colors & Fonts
    * ------------------------------------- */
@@ -346,14 +346,10 @@ file 'app/assets/stylesheets/layout/_navbar.css.scss', <<-CSS
   }
 CSS
 
-file 'app/assets/stylesheets/application.css.scss', <<-CSS
-  @import "layout/index";
-CSS
-
-file 'app/assets/stylesheets/layout/_index.css.scss', <<-CSS
+file 'app/assets/stylesheets/layout/_index.scss', <<-CSS
   @import "navbar";
   @import "footer";
-  @import "sidebar";
+  @import "utilities";
 CSS
 
 
